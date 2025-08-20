@@ -302,23 +302,57 @@ function playGameOver(){playFile(sGameOver)}
 function primeAudio(){[sCorrect,sWrong,sClick,sGameOver].forEach(a=>{a.play().then(()=>{a.pause();a.currentTime=0}).catch(()=>{})})}
 window.addEventListener('click',primeAudio,{once:true});
 
-// === Looping background music that stops on Start and resumes on Game Over / Play Again ===
-const bgMusic=new Audio("sounds/bg-music.mp3");
-bgMusic.loop=true;bgMusic.volume=0.25;
-function startBackgroundMusic(){if(!document.getElementById("sounds").checked)return;try{bgMusic.currentTime=0;bgMusic.play()}catch(e){}}
-function stopBackgroundMusic(){try{bgMusic.pause();bgMusic.currentTime=0}catch(e){}}
-// start on first gesture (softly on menu)
-window.addEventListener('click',()=>{if(bgMusic.paused) startBackgroundMusic()},{once:true});
-// stop when starting the game
-startBtn.addEventListener('click',()=>{stopBackgroundMusic()});
-// resume at game over
-const __end=endGame;endGame=()=>{__end();playGameOver();startBackgroundMusic()}
-// resume when player returns to setup
-document.getElementById('playAgainBtn').addEventListener('click',()=>{startBackgroundMusic()});
-// live toggle: mute/unmute background immediately
-document.getElementById('sounds').addEventListener('change',e=>{if(e.target.checked){ // only resume on non-play state
-  if(setup.hidden===false || finish.hidden===false){startBackgroundMusic()}
-}else{stopBackgroundMusic()}});
+// --- Background Music (robust) ---
+const bgMusic = new Audio("sounds/bg-music.mp3"); // change if your filename differs
+bgMusic.loop = true;
+bgMusic.volume = 0.35;
+
+function startBackgroundMusic() {
+  if (!document.getElementById("sounds").checked) return;
+  try { bgMusic.currentTime = 0; bgMusic.play(); } catch(e){}
+}
+function stopBackgroundMusic() {
+  try { bgMusic.pause(); bgMusic.currentTime = 0; } catch(e){}
+}
+
+// Prime audio once (iOS/Safari) and start if on menu/finish screens
+window.addEventListener("click", () => {
+  try { bgMusic.play().then(() => { bgMusic.pause(); bgMusic.currentTime = 0; }).catch(()=>{}); } catch(e){}
+  if (!document.getElementById("play").hidden) return; // in-game: keep silent
+  startBackgroundMusic();
+}, { once: true });
+
+// Stop when game starts
+startBtn.addEventListener("click", () => { stopBackgroundMusic(); });
+
+// Resume when game ends
+const __origEndGame = endGame;
+endGame = () => {
+  __origEndGame();
+  playGameOver();
+  startBackgroundMusic();
+};
+
+// Resume when returning to setup
+document.getElementById("playAgainBtn").addEventListener("click", () => {
+  startBackgroundMusic();
+});
+
+// Live toggle: mute/unmute bg immediately
+document.getElementById("sounds").addEventListener("change", e => {
+  if (e.target.checked) {
+    if (!document.getElementById("play") || document.getElementById("play").hidden) {
+      startBackgroundMusic(); // only on setup/finish
+    }
+  } else {
+    stopBackgroundMusic();
+  }
+});
+
+// Optional: log if the file couldn't load (helps debug path issues)
+bgMusic.addEventListener("error", () => {
+  console.warn("[audio] bg-music failed to load. Check path/filename:", bgMusic.src);
+});
 </script>
 </body>
 </html>
