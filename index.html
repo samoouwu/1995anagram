@@ -43,7 +43,12 @@
     [hidden]{display:none !important}
 
     /* --- Extra mobile polish --- */
+.grid{overflow-x:hidden}
+
     @media (max-width: 480px){
+  .grid{flex-wrap:nowrap;justify-content:center;gap:6px;overflow-x:hidden}
+  .tile{min-width:28px;padding:6px 8px;font-size:16px;letter-spacing:0.5px}
+
       html,body{height:100dvh}
       body{padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));}
       .wrap{width:100vw}
@@ -262,6 +267,7 @@
       const guess=guessInput.value.trim().toUpperCase();
       if(!guess) return;
       if(guess===currentWord){
+        playCorrect();
         const secs=stopTimer();
         const pts=Math.max(50,1000-Math.floor(secs*10)+50*streak);
         score+=pts;streak++;
@@ -275,6 +281,7 @@
     });
 
     document.getElementById("reshuffleBtn").addEventListener("click",()=>{ renderWord(currentWord); playClick(); });
+    window.addEventListener('resize', ()=>{ fitLetters(); });
     document.getElementById("skipBtn").addEventListener("click",()=>{
       streak=0;streakEl.textContent=streak;
       stopTimer();
