@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Anagram Rush</title>
+  <title>🎵 Anagram Rush</title>
   <style>
     :root{--bg:#0b1020;--bg2:#0e1530;--card:#101735;--ink:#eef1ff;--muted:#a7afd6;--accent:#80a8ff;--accent2:#b5c8ff;--good:#34d399;--bad:#f87171;--ring:#3651a7}
     *{box-sizing:border-box}
@@ -21,8 +21,8 @@
     .stats{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted)}
     .kpi{background:rgba(10,16,46,.75);border:1px solid rgba(132,151,255,.25);border-radius:12px;padding:10px 12px}
     .kpi strong{color:var(--ink)}
-    .grid{display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;margin:18px 0;overflow-x:auto}
-    .tile{background:rgba(10,16,46,.9);border:1px solid rgba(132,151,255,.25);border-radius:14px;padding:12px 16px;text-align:center;font-weight:800;font-size:24px;letter-spacing:2px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+    .grid{display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;margin:18px 0;overflow-x:auto;scroll-snap-type:x mandatory}
+    .tile{background:rgba(10,16,46,.9);border:1px solid rgba(132,151,255,.25);border-radius:14px;padding:12px 16px;text-align:center;font-weight:800;font-size:24px;letter-spacing:2px;box-shadow:0 8px 24px rgba(0,0,0,.25);min-width:40px;scroll-snap-align:center}
     .controls{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;justify-content:center}
     button{background:var(--accent);color:#0b1020;border:none;padding:12px 16px;border-radius:12px;font-weight:700;cursor:pointer;transition:filter .2s ease,transform .06s ease}
     button:hover{filter:brightness(1.1)}
@@ -41,16 +41,26 @@
     .nameEntry{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
     .small{font-size:12px;color:var(--muted)}
     [hidden]{display:none !important}
-    @media (max-width: 640px){
-      body{padding:12px}
+
+    /* --- Extra mobile polish --- */
+    @media (max-width: 480px){
+      html,body{height:100dvh}
+      body{padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));}
       .wrap{width:100vw}
       header h1{font-size:16px}
-      .tile{font-size:20px;padding:10px 12px;letter-spacing:1px}
-      .grid{gap:8px;margin:14px 0}
-      .kpi{padding:8px 10px}
-      input[type=text]{max-width:100%;width:100%;font-size:16px}
+      .stats{gap:8px;justify-content:center}
+      .kpi{min-width:120px;text-align:center;padding:8px 10px}
+      .grid{gap:8px;margin:12px 0}
+      .tile{min-width:36px;padding:10px 12px;font-size:20px;letter-spacing:1px}
       .controls{gap:8px}
-      .controls button{width:100%;min-height:44px}
+      .controls button{flex:1 1 48%;min-height:48px}
+      input[type=text]{width:100%;max-width:100%;font-size:18px;padding:14px 16px}
+      table{display:block;overflow-x:auto}
+    }
+    @media (max-width: 360px){
+      .kpi{min-width:100%;padding:8px 10px}
+      .controls button{flex:1 1 100%}
+      .tile{min-width:34px;font-size:18px}
     }
   </style>
 </head>
@@ -89,7 +99,9 @@
           <div class="grid" id="grid" aria-live="polite"></div>
           <form id="guessForm" autocomplete="off" class="center">
             <label class="sr" for="guess">Your guess</label>
-            <input id="guess" type="text" placeholder="Type the unscrambled word (no spaces)…" required />
+            <input id="guess" type="text"
+              placeholder="Type the unscrambled word (no spaces)…" required
+              autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" />
             <div class="controls">
               <button type="submit">Submit</button>
               <button type="button" class="secondary" id="reshuffleBtn">Reshuffle letters</button>
@@ -133,78 +145,216 @@
 
   <script>
     const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLScpglp7w18EMoxlh8ynEj82G63jn7fZsvUgwTdMJKqt8CCBsQ/formResponse";
-    const ENTRY_IDS = {name:"entry.1172479628",score:"entry.1803995992",totalTime:"entry.1884286962",seed:"entry.914252467",date:"entry.1001084897"};
+    const ENTRY_IDS = {
+      name: "entry.1172479628",
+      score: "entry.1803995992",
+      totalTime: "entry.1884286962",
+      seed: "entry.914252467",
+      date: "entry.1001084897"
+    };
 
-    const WORDS = ["BROOKLYN","BRONX","QUEENS","MANHATTAN","RESOURCE","HARLEM","SOHO","ELLIMAN","TRIBECA","CHELSEA","ASTORIA","DUMBO","LEASE","TENANT","BROKER","ESCROW","MORTGAGE","TITLE","CLOSING","DEED","LIEN","COOP","LOFT","DUPLEX","CONDO","RENTAL","ZONING","LOT","BLOCK","PARCEL","AGENT","OFFER","LISTING","COMPASS","STUDIOPRO","STUDIO","EDEAL","COMMISSION","APPRAISAL","EQUITY","LIABILITY","ASSET","CORCORAN","CAPRATE","VINCENT","REALTOR","MLS","SUBLET","EASEMENT","VARIANCE","LIQUIDITY","AMENITY","DUE","ESCALATION","REFINANCE","FORECLOSURE","INVESTOR","PORTFOLIO","CASHFLOW","CAPITAL","RENOVATION","PENTHOUSE","MULTIFAMILY","DEVELOPER","XPRESSDOCS","ASSESSMENT","VACANCY","UNDERWRITING","AMORTIZE","INTEREST","PRINCIPAL"];
+    const WORDS = [
+      "BROOKLYN","BRONX","QUEENS","MANHATTAN","RESOURCE","HARLEM","SOHO","ELLIMAN","TRIBECA","CHELSEA","ASTORIA","DUMBO","LEASE","TENANT","BROKER","ESCROW","MORTGAGE","TITLE","CLOSING","DEED","LIEN","COOP","LOFT","DUPLEX","CONDO","RENTAL","ZONING","LOT","BLOCK","PARCEL","AGENT","OFFER","LISTING","COMPASS","STUDIOPRO","STUDIO","EDEAL","COMMISSION",
+      "APPRAISAL","EQUITY","LIABILITY","ASSET","CORCORAN","CAPRATE","VINCENT","REALTOR","MLS","SUBLET","EASEMENT","VARIANCE","LIQUIDITY","AMENITY","DUE","ESCALATION","REFINANCE","FORECLOSURE","INVESTOR","PORTFOLIO","CASHFLOW","CAPITAL","RENOVATION","PENTHOUSE","MULTIFAMILY","DEVELOPER","XPRESSDOCS","ASSESSMENT","VACANCY","UNDERWRITING","AMORTIZE","INTEREST","PRINCIPAL"
+    ];
 
-    let currentWord="";let round=0;let score=0;let streak=0;let totalTime=0;let timerInterval;let startTime;
+    let currentWord = "";
+    let round = 0;
+    let score = 0;
+    let streak = 0;
+    let totalTime = 0;
+    let timerInterval;
+    let startTime;
 
-    const startBtn=document.getElementById("startBtn");
-    const setup=document.getElementById("setup");
-    const play=document.getElementById("play");
-    const finish=document.getElementById("finish");
-    const grid=document.getElementById("grid");
-    const guessForm=document.getElementById("guessForm");
-    const guessInput=document.getElementById("guess");
-    const feedback=document.getElementById("feedback");
-    const roundNow=document.getElementById("roundNow");
-    const roundTotal=document.getElementById("roundTotal");
-    const scoreEl=document.getElementById("score");
-    const streakEl=document.getElementById("streak");
-    const timeEl=document.getElementById("time");
-    const progressBar=document.getElementById("progressBar");
-    const finalScore=document.getElementById("finalScore");
-    const playerName=document.getElementById("playerName");
-    const saveScoreBtn=document.getElementById("saveScoreBtn");
-    const saveStatus=document.getElementById("saveStatus");
-    const board=document.getElementById("board").querySelector("tbody");
-    const sndToggle=document.getElementById("sounds");
+    const startBtn = document.getElementById("startBtn");
+    const setup = document.getElementById("setup");
+    const play = document.getElementById("play");
+    const finish = document.getElementById("finish");
+    const grid = document.getElementById("grid");
+    const guessForm = document.getElementById("guessForm");
+    const guessInput = document.getElementById("guess");
+    const feedback = document.getElementById("feedback");
+    const roundNow = document.getElementById("roundNow");
+    const roundTotal = document.getElementById("roundTotal");
+    const scoreEl = document.getElementById("score");
+    const streakEl = document.getElementById("streak");
+    const timeEl = document.getElementById("time");
+    const progressBar = document.getElementById("progressBar");
+    const finalScore = document.getElementById("finalScore");
+    const playerName = document.getElementById("playerName");
+    const saveScoreBtn = document.getElementById("saveScoreBtn");
+    const saveStatus = document.getElementById("saveStatus");
+    const board = document.getElementById("board").querySelector("tbody");
+    const sndToggle = document.getElementById("sounds");
+    const bgMusic = document.getElementById("bgMusic");
 
-    roundTotal.textContent=30;
+    roundTotal.textContent = 30;
 
-    function shuffle(word){return word.split('').sort(()=>Math.random()-.5).join('')}
-    function nextRound(){if(round>=30){endGame();return}round++;roundNow.textContent=round;currentWord=WORDS[Math.floor(Math.random()*WORDS.length)];renderWord(currentWord);startTimer();feedback.textContent="";guessInput.value="";guessInput.focus()}
-    function renderWord(word){grid.innerHTML="";shuffle(word).split('').forEach(l=>{const div=document.createElement("div");div.className="tile";div.textContent=l;grid.appendChild(div)})}
-    function startTimer(){clearInterval(timerInterval);startTime=Date.now();timerInterval=setInterval(()=>{timeEl.textContent=((Date.now()-startTime)/1000).toFixed(1)},100)}
-    function stopTimer(){clearInterval(timerInterval);const secs=(Date.now()-startTime)/1000;totalTime+=secs;return secs}
-    function endGame(){play.hidden=true;finish.hidden=false;finalScore.textContent=score}
+    function shuffle(word){
+      return word.split('').map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]).join('');
+    }
 
-    startBtn.onclick=()=>{setup.hidden=true;play.hidden=false;round=0;score=0;streak=0;totalTime=0;progressBar.style.width='0%';nextRound()}
+    function nextRound(){
+      if(round>=30){ endGame(); return; }
+      round++;
+      roundNow.textContent=round;
+      currentWord = WORDS[Math.floor(Math.random()*WORDS.length)];
+      renderWord(currentWord);
+      startTimer();
+      feedback.textContent="";
+      guessInput.value="";
+      setTimeout(()=>{
+        guessInput.focus({preventScroll:true});
+        guessInput.scrollIntoView({block:"center",behavior:"smooth"});
+      },50);
+    }
 
-    guessForm.onsubmit=e=>{e.preventDefault();const guess=guessInput.value.trim().toUpperCase();if(!guess)return;if(guess===currentWord){const secs=stopTimer();const pts=Math.max(50,1000-Math.floor(secs*10)+50*streak);score+=pts;streak++;scoreEl.textContent=score;streakEl.textContent=streak;progressBar.style.width=((round/30)*100)+"%";nextRound()}else{feedback.textContent="Incorrect · Try again"}}
+    function renderWord(word){
+      grid.innerHTML="";
+      shuffle(word).split('').forEach(l=>{
+        const div=document.createElement("div");
+        div.className="tile";
+        div.textContent=l;
+        grid.appendChild(div);
+      });
+    }
 
-    document.getElementById("reshuffleBtn").onclick=()=>{renderWord(currentWord)}
-    document.getElementById("skipBtn").onclick=()=>{streak=0;streakEl.textContent=streak;stopTimer();progressBar.style.width=((round/30)*100)+"%";nextRound()}
+    function startTimer(){
+      clearInterval(timerInterval);
+      startTime=Date.now();
+      timerInterval=setInterval(()=>{
+        timeEl.textContent=((Date.now()-startTime)/1000).toFixed(1);
+      },100);
+    }
 
-    saveScoreBtn.onclick=()=>{const name=playerName.value.trim()||"Anonymous";const row=document.createElement("tr");row.innerHTML=`<td></td><td>${name}</td><td>${score}</td><td>${totalTime.toFixed(1)}</td><td>${new Date().toLocaleDateString()}</td>`;board.appendChild(row);[...board.querySelectorAll("tr")].forEach((r,i)=>r.firstChild.textContent=i+1);saveStatus.textContent="Saved locally.";const formData=new FormData();formData.append(ENTRY_IDS.name,name);formData.append(ENTRY_IDS.score,score);formData.append(ENTRY_IDS.totalTime,totalTime.toFixed(1));formData.append(ENTRY_IDS.seed,Math.random().toString(36).substring(2,8));formData.append(ENTRY_IDS.date,new Date().toISOString());fetch(FORM_ACTION,{method:"POST",mode:"no-cors",body:formData})}
+    function stopTimer(){
+      clearInterval(timerInterval);
+      const secs=(Date.now()-startTime)/1000;
+      totalTime+=secs;
+      return secs;
+    }
 
-    document.getElementById("playAgainBtn").onclick=()=>{finish.hidden=true;setup.hidden=false}
-    document.getElementById("copyLinkBtn").onclick=()=>{navigator.clipboard.writeText(window.location.href);saveStatus.textContent="Link copied!"}
+    function endGame(){
+      play.hidden=true;
+      finish.hidden=false;
+      finalScore.textContent=score;
+    }
+
+    function startGame(){
+      setup.hidden=true;
+      play.hidden=false;
+      round=0;score=0;streak=0;totalTime=0;
+      progressBar.style.width='0%';
+      nextRound();
+      setTimeout(()=>{
+        guessInput.focus({preventScroll:true});
+        guessInput.scrollIntoView({block:"center",behavior:"smooth"});
+      },50);
+    }
+
+    startBtn.addEventListener("click",()=>{
+      try{ bgMusic.pause(); bgMusic.currentTime=0; }catch(e){}
+      startGame();
+    });
+
+    guessForm.addEventListener("submit",(e)=>{
+      e.preventDefault();
+      const guess=guessInput.value.trim().toUpperCase();
+      if(!guess) return;
+      if(guess===currentWord){
+        const secs=stopTimer();
+        const pts=Math.max(50,1000-Math.floor(secs*10)+50*streak);
+        score+=pts;streak++;
+        scoreEl.textContent=score;streakEl.textContent=streak;
+        progressBar.style.width=((round/30)*100)+"%";
+        nextRound();
+      } else {
+        feedback.textContent="Incorrect · Try again";
+        playWrong();
+      }
+    });
+
+    document.getElementById("reshuffleBtn").addEventListener("click",()=>{ renderWord(currentWord); playClick(); });
+    document.getElementById("skipBtn").addEventListener("click",()=>{
+      streak=0;streakEl.textContent=streak;
+      stopTimer();
+      progressBar.style.width=((round/30)*100)+"%";
+      nextRound();
+      playClick();
+    });
+
+    saveScoreBtn.addEventListener("click",()=>{
+      const name=playerName.value.trim()||"Anonymous";
+      const row=document.createElement("tr");
+      row.innerHTML=`<td></td><td>${name}</td><td>${score}</td><td>${totalTime.toFixed(1)}</td><td>${new Date().toLocaleDateString()}</td>`;
+      board.appendChild(row);
+      [...board.querySelectorAll("tr")].forEach((r,i)=>r.firstChild.textContent=i+1);
+      saveStatus.textContent="Saved locally.";
+
+      const formData=new FormData();
+      formData.append(ENTRY_IDS.name,name);
+      formData.append(ENTRY_IDS.score,score);
+      formData.append(ENTRY_IDS.totalTime,totalTime.toFixed(1));
+      formData.append(ENTRY_IDS.seed,Math.random().toString(36).substring(2,8));
+      formData.append(ENTRY_IDS.date,new Date().toISOString());
+      fetch(FORM_ACTION,{method:"POST",mode:"no-cors",body:formData});
+
+      playClick();
+    });
+
+    document.getElementById("playAgainBtn").addEventListener("click",()=>{
+      finish.hidden=true;
+      setup.hidden=false;
+      if(sndToggle.checked){
+        try{ bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){}
+      }
+      playClick();
+    });
+
+    document.getElementById("copyLinkBtn").addEventListener("click",()=>{
+      navigator.clipboard.writeText(window.location.href);
+      saveStatus.textContent="Link copied!";
+      playClick();
+    });
 
     const sCorrect  = new Audio("sounds/correct.mp3");
     const sWrong    = new Audio("sounds/wrong.mp3");
     const sClick    = new Audio("sounds/click.mp3");
     const sGameOver = new Audio("sounds/gameover.mp3");
     [sCorrect,sWrong,sClick,sGameOver].forEach(a=>{a.preload="auto";a.volume=0.45});
-    function playFile(a){if(!sndToggle.checked)return;try{a.currentTime=0;a.play()}catch(e){}}
-    function playClick(){playFile(sClick)}
-    function playCorrect(){playFile(sCorrect)}
-    function playWrong(){playFile(sWrong)}
-    function playGameOver(){playFile(sGameOver)}
-    function primeFX(){[sCorrect,sWrong,sClick,sGameOver].forEach(a=>{a.play().then(()=>{a.pause();a.currentTime=0}).catch(()=>{})})}
-    window.addEventListener('click',primeFX,{once:true});
-    [startBtn,document.getElementById("reshuffleBtn"),document.getElementById("skipBtn"),saveScoreBtn,document.getElementById("playAgainBtn"),document.getElementById("copyLinkBtn")].forEach(btn=>{if(btn){btn.addEventListener("click",()=>playClick(),{capture:true})}})
-    const _sub=guessForm.onsubmit;guessForm.onsubmit=(e)=>{const ok=guessInput.value.trim().toUpperCase()===currentWord;_sub(e);if(ok){playCorrect()}else if(guessInput.value.trim()){playWrong()}}
+    function playFile(a){ if(!sndToggle.checked) return; try{ a.currentTime=0; a.play(); }catch(e){} }
+    function playClick(){ playFile(sClick); }
+    function playCorrect(){ playFile(sCorrect); }
+    function playWrong(){ playFile(sWrong); }
+    function playGameOver(){ playFile(sGameOver); }
+    function primeFX(){ [sCorrect,sWrong,sClick,sGameOver].forEach(a=>{ a.play().then(()=>{a.pause();a.currentTime=0}).catch(()=>{}) }); }
+    window.addEventListener("click",primeFX,{once:true});
 
-    const bgMusic=document.getElementById('bgMusic');
-    bgMusic.volume=0.35;
-    document.addEventListener('pointerdown', function once(){ if(play.hidden && sndToggle.checked){ try{bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){} } document.removeEventListener('pointerdown', once); }, {once:true, passive:true});
-    const _startHandler=startBtn.onclick;
-    startBtn.onclick=()=>{ try{bgMusic.pause();bgMusic.currentTime=0;}catch(e){}; if(_startHandler) _startHandler(); };
     const _end=endGame;
-    endGame=()=>{ _end(); playGameOver(); if(sndToggle.checked){ try{bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){} } };
-    document.getElementById('playAgainBtn').addEventListener('click',()=>{ if(sndToggle.checked){ try{bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){} } });
-    sndToggle.addEventListener('change', (e)=>{ if(e.target.checked){ if(play.hidden){ try{bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){} } } else { try{bgMusic.pause();}catch(e){} } });
+    endGame=()=>{
+      _end();
+      playGameOver();
+      if(sndToggle.checked){
+        try{ bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){}
+      }
+    };
+
+    sndToggle.addEventListener("change",(e)=>{
+      if(e.target.checked){
+        if(play.hidden){
+          try{ bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){}
+        }
+      } else {
+        try{ bgMusic.pause(); }catch(e){}
+      }
+    });
+
+    document.addEventListener("pointerdown", function once(){
+      if(play.hidden && sndToggle.checked){
+        try{ bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){}
+      }
+      document.removeEventListener("pointerdown", once);
+    }, {once:true, passive:true});
   </script>
 </body>
 </html>
