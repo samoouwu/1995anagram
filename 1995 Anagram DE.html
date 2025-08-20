@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anagram Sprint</title>
+  <style>
+    :root{--bg:#0b1020;--bg2:#0e1530;--card:#101735;--ink:#eef1ff;--muted:#a7afd6;--accent:#80a8ff;--accent2:#b5c8ff;--good:#34d399;--bad:#f87171;--ring:#3651a7}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial;color:var(--ink);background:radial-gradient(1200px 700px at 10% 0%,#0e1a48 0%,transparent 60%),radial-gradient(900px 600px at 90% 100%,#0c1a3d 0%,transparent 65%),linear-gradient(180deg,var(--bg),var(--bg2));display:grid;place-items:center;padding:24px}
+    .wrap{width:min(980px,96vw)}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),var(--card);border:1px solid rgba(132,151,255,.25);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.03);overflow:hidden}
+    header{padding:18px 22px;border-bottom:1px solid rgba(132,151,255,.2);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    header h1{margin:0;font-size:18px;letter-spacing:.3px}
+    .pill{font-size:12px;color:var(--muted);padding:6px 10px;border:1px solid rgba(132,151,255,.25);border-radius:999px;backdrop-filter:blur(6px)}
+    .progress{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;position:relative;margin:0 22px}
+    .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease}
+    main{padding:22px}
+    .row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+    .stats{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted)}
+    .kpi{background:rgba(10,16,46,.75);border:1px solid rgba(132,151,255,.25);border-radius:12px;padding:10px 12px}
+    .kpi strong{color:var(--ink)}
+    .grid{display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;margin:18px 0;overflow-x:auto}
+    .tile{background:rgba(10,16,46,.9);border:1px solid rgba(132,151,255,.25);border-radius:14px;padding:12px 16px;text-align:center;font-weight:800;font-size:24px;letter-spacing:2px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+    .controls{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;justify-content:center}
+    button{background:var(--accent);color:#0b1020;border:none;padding:12px 16px;border-radius:12px;font-weight:700;cursor:pointer;transition:filter .2s ease,transform .06s ease}
+    button:hover{filter:brightness(1.1)}
+    button:active{transform:translateY(1px)}
+    button.secondary{background:transparent;color:var(--ink);border:1px solid rgba(132,151,255,.35)}
+    input[type=text]{width:100%;max-width:340px;padding:14px 16px;border-radius:12px;border:1px solid rgba(132,151,255,.35);background:rgba(10,16,46,.7);color:var(--ink);font-size:16px;outline:none}
+    input[type=text]:focus{box-shadow:0 0 0 4px rgba(128,168,255,.2);border-color:var(--ring)}
+    .hint{color:var(--muted);font-size:14px}
+    .right{color:var(--good);font-weight:700}
+    .wrong{color:var(--bad);font-weight:700}
+    .footer{padding:18px 22px;border-top:1px solid rgba(132,151,255,.2);color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:10px;border-bottom:1px solid rgba(132,151,255,.2);text-align:left;font-size:14px}
+    .sr{position:absolute;left:-9999px}
+    .center{display:grid;place-items:center;text-align:center}
+    .nameEntry{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+    .small{font-size:12px;color:var(--muted)}
+    [hidden]{display:none !important}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" id="app">
+      <header>
+        <h1>✏️ Anagram Sprint</h1>
+        <div class="pill">Private game · 1995 Broadway</div>
+      </header>
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <main>
+        <section id="setup">
+          <div class="row">
+            <div>
+              <h2 style="margin:0 0 6px">Ready?</h2>
+              <p class="hint">Theme: NYC neighborhoods + Real Estate.</p>
+            </div>
+          </div>
+          <div class="controls">
+            <button id="startBtn">▶ Start Game</button>
+          </div>
+          <details style="margin-top:10px">
+            <summary>How scoring works</summary>
+            <p class="small">Base: 1000 points per round − 10 × seconds to solve + 50 × streak. Minimum per round is 50.</p>
+          </details>
+        </section>
+
+        <section id="play" hidden>
+          <div class="stats">
+            <div class="kpi">Round <strong><span id="roundNow">1</span>/<span id="roundTotal">30</span></strong></div>
+            <div class="kpi">Time <strong><span id="time">0.0</span>s</strong></div>
+            <div class="kpi">Streak <strong><span id="streak">0</span></strong></div>
+            <div class="kpi">Score <strong><span id="score">0</span></strong></div>
+          </div>
+          <div class="grid" id="grid" aria-live="polite"></div>
+          <form id="guessForm" autocomplete="off" class="center">
+            <label class="sr" for="guess">Your guess</label>
+            <input id="guess" type="text" placeholder="Type the unscrambled word (no spaces)…" required />
+            <div class="controls">
+              <button type="submit">Submit</button>
+              <button type="button" class="secondary" id="reshuffleBtn">Reshuffle letters</button>
+              <button type="button" class="secondary" id="skipBtn">Skip</button>
+            </div>
+          </form>
+          <div id="feedback" class="hint center"></div>
+        </section>
+
+        <section id="finish" hidden class="center">
+          <div>
+            <h2>🏁 Game Over</h2>
+            <p class="hint">Great run! Save your score to the private leaderboard.</p>
+            <div class="kpi">Final Score: <strong id="finalScore">0</strong></div>
+            <div style="margin-top:14px" class="nameEntry">
+              <input id="playerName" type="text" placeholder="Display name" maxlength="24" />
+              <button id="saveScoreBtn">Save to Leaderboard</button>
+            </div>
+            <p id="saveStatus" class="hint" style="margin-top:6px"></p>
+            <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button id="playAgainBtn">Play Again</button>
+              <button class="secondary" id="copyLinkBtn">Copy Share Link</button>
+            </div>
+
+            <h3 style="margin-top:24px">🏆 Leaderboard (local/private)</h3>
+            <table id="board">
+              <thead><tr><th>#</th><th>Name</th><th>Score</th><th>Time(s)</th><th>Date</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+      <div class="footer small">
+        <div><span>Made for you — link-only play.</span></div>
+        <div class="toggle"><input type="checkbox" id="sounds" checked /> <label for="sounds">Sound FX</label></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLScpglp7w18EMoxlh8ynEj82G63jn7fZsvUgwTdMJKqt8CCBsQ/formResponse";
+    const ENTRY_IDS = {
+      name: "entry.1172479628",
+      score: "entry.1803995992",
+      totalTime: "entry.1884286962",
+      seed: "entry.914252467",
+      date: "entry.1001084897"
+    };
+
+    const WORDS = [
+      "BROOKLYN","BRONX","QUEENS","MANHATTAN","RESOURCE","HARLEM","SOHO","ELLIMAN","TRIBECA","CHELSEA","ASTORIA","DUMBO","LEASE","TENANT","BROKER","ESCROW","MORTGAGE","TITLE","CLOSING","DEED","LIEN","COOP","LOFT","DUPLEX","CONDO","RENTAL","ZONING","LOT","BLOCK","PARCEL","AGENT","OFFER","LISTING","COMPASS","STUDIOPRO","STUDIO","EDEAL","COMMISSION",
+      "APPRAISAL","EQUITY","LIABILITY","ASSET","CORCORAN","CAPRATE","VINCENT","REALTOR","MLS","SUBLET","EASEMENT","VARIANCE","LIQUIDITY","AMENITY","DUE","ESCALATION","REFINANCE","FORECLOSURE","INVESTOR","PORTFOLIO","CASHFLOW","CAPITAL","RENOVATION","PENTHOUSE","MULTIFAMILY","DEVELOPER","XPRESSDOCS","ASSESSMENT","VACANCY","UNDERWRITING","AMORTIZE","INTEREST","PRINCIPAL"
+    ];
+
+    let currentWord = "";
+    let round = 0;
+    let score = 0;
+    let streak = 0;
+    let totalTime = 0;
+    let timerInterval;
+    let startTime;
+
+    const startBtn = document.getElementById("startBtn");
+    const setup = document.getElementById("setup");
+    const play = document.getElementById("play");
+    const finish = document.getElementById("finish");
+    const grid = document.getElementById("grid");
+    const guessForm = document.getElementById("guessForm");
+    const guessInput = document.getElementById("guess");
+    const feedback = document.getElementById("feedback");
+    const roundNow = document.getElementById("roundNow");
+    const roundTotal = document.getElementById("roundTotal");
+    const scoreEl = document.getElementById("score");
+    const streakEl = document.getElementById("streak");
+    const timeEl = document.getElementById("time");
+    const progressBar = document.getElementById("progressBar");
+    const finalScore = document.getElementById("finalScore");
+    const playerName = document.getElementById("playerName");
+    const saveScoreBtn = document.getElementById("saveScoreBtn");
+    const saveStatus = document.getElementById("saveStatus");
+    const board = document.getElementById("board").querySelector("tbody");
+
+    roundTotal.textContent = 30;
+
+    function shuffle(word){
+      return word.split('').sort(()=>Math.random()-.5).join('');
+    }
+
+    function nextRound(){
+      if(round>=30){
+        endGame();
+        return;
+      }
+      round++;
+      roundNow.textContent=round;
+      currentWord = WORDS[Math.floor(Math.random()*WORDS.length)];
+      renderWord(currentWord);
+      startTimer();
+      feedback.textContent="";
+      guessInput.value="";
+    }
+
+    function renderWord(word){
+      grid.innerHTML="";
+      shuffle(word).split('').forEach(l=>{
+        const div=document.createElement("div");
+        div.className="tile";
+        div.textContent=l;
+        grid.appendChild(div);
+      });
+    }
+
+    function startTimer(){
+      clearInterval(timerInterval);
+      startTime=Date.now();
+      timerInterval=setInterval(()=>{
+        timeEl.textContent=((Date.now()-startTime)/1000).toFixed(1);
+      },100);
+    }
+
+    function stopTimer(){
+      clearInterval(timerInterval);
+      const secs=(Date.now()-startTime)/1000;
+      totalTime+=secs;
+      return secs;
+    }
+
+    function endGame(){
+      play.hidden=true;
+      finish.hidden=false;
+      finalScore.textContent=score;
+    }
+
+    startBtn.onclick=()=>{
+      setup.hidden=true;
+      play.hidden=false;
+      round=0;score=0;streak=0;totalTime=0;
+      nextRound();
+    };
+
+    guessForm.onsubmit=(e)=>{
+      e.preventDefault();
+      const guess=guessInput.value.trim().toUpperCase();
+      if(!guess)return;
+      if(guess===currentWord){
+        const secs=stopTimer();
+        const pts=Math.max(50,1000-Math.floor(secs*10)+50*streak);
+        score+=pts;streak++;
+        scoreEl.textContent=score;streakEl.textContent=streak;
+        progressBar.style.width=((round/30)*100)+"%";
+        nextRound();
+      } else {
+        feedback.textContent="Incorrect · Try again";
+      }
+    };
+
+    document.getElementById("reshuffleBtn").onclick=()=>{
+      renderWord(currentWord);
+    };
+
+    document.getElementById("skipBtn").onclick=()=>{
+      streak=0;streakEl.textContent=streak;
+      stopTimer();
+      progressBar.style.width=((round/30)*100)+"%";
+      nextRound();
+    };
+
+    saveScoreBtn.onclick=()=>{
+      const name=playerName.value.trim()||"Anonymous";
+      const row=document.createElement("tr");
+      row.innerHTML=`<td></td><td>${name}</td><td>${score}</td><td>${totalTime.toFixed(1)}</td><td>${new Date().toLocaleDateString()}</td>`;
+      board.appendChild(row);
+      [...board.querySelectorAll("tr")].forEach((r,i)=>r.firstChild.textContent=i+1);
+      saveStatus.textContent="Saved locally.";
+
+      const formData=new FormData();
+      formData.append(ENTRY_IDS.name,name);
+      formData.append(ENTRY_IDS.score,score);
+      formData.append(ENTRY_IDS.totalTime,totalTime.toFixed(1));
+      formData.append(ENTRY_IDS.seed,Math.random().toString(36).substring(2,8));
+      formData.append(ENTRY_IDS.date,new Date().toISOString());
+
+      fetch(FORM_ACTION,{method:"POST",mode:"no-cors",body:formData});
+    };
+
+    document.getElementById("playAgainBtn").onclick=()=>{
+      finish.hidden=true;
+      setup.hidden=false;
+    };
+
+    document.getElementById("copyLinkBtn").onclick=()=>{
+      navigator.clipboard.writeText(window.location.href);
+      saveStatus.textContent="Link copied!";
+    };
+      const sndToggle=document.getElementById("sounds");
+    let audioCtx=null;
+    function ensureAudio(){if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}}
+    function env(gain,attack,decay){const now=audioCtx.currentTime;gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(0.9,now+attack);gain.gain.exponentialRampToValueAtTime(0.0001,now+attack+decay)}
+    function playTone(freq,type,dur,attack,decay,pan){if(!sndToggle.checked)return;ensureAudio();const o=audioCtx.createOscillator();const g=audioCtx.createGain();const p=audioCtx.createStereoPanner?audioCtx.createStereoPanner():null;o.type=type;o.frequency.value=freq;env(g,attack,decay);o.connect(g);let dest=g;if(p){p.pan.value=pan||0;g.connect(p);dest=p}dest.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}
+    function chord(freqs,type,dur){if(!sndToggle.checked)return;ensureAudio();const now=audioCtx.currentTime;const master=audioCtx.createGain();master.gain.value=0.6;master.connect(audioCtx.destination);freqs.forEach((f,i)=>{const o=audioCtx.createOscillator();const g=audioCtx.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(0.7/(i+1),now+0.04*i);g.gain.exponentialRampToValueAtTime(0.0001,now+dur);o.connect(g);g.connect(master);o.start(now+0.02*i);o.stop(now+dur)});}
+    function arpeggio(freqs,type,step,count){if(!sndToggle.checked)return;ensureAudio();for(let i=0;i<count;i++){const f=freqs[i%freqs.length];setTimeout(()=>playTone(f,type,0.22,0.01,0.18,(i%2?0.2:-0.2)),i*step)} }
+    function playClick(){playTone(220,"square",0.09,0.005,0.06,0)}
+    function playCorrect(){chord([659.25,880,987.77],"sine",0.5)}
+    function playWrong(){playTone(180,"sawtooth",0.25,0.005,0.22,0);setTimeout(()=>playTone(140,"sawtooth",0.25,0.005,0.22,0),90)}
+    function playGameOver(){arpeggio([392,494,523,659],"sine",120,6)}
+
+    [startBtn,document.getElementById("reshuffleBtn"),document.getElementById("skipBtn"),saveScoreBtn,document.getElementById("playAgainBtn"),document.getElementById("copyLinkBtn")].forEach(btn=>{if(btn){btn.addEventListener("click",()=>playClick(),{capture:true})}});
+
+    const _origEndGame=endGame;endGame=()=>{_origEndGame();playGameOver()};
+
+    const _origSubmit=guessForm.onsubmit;guessForm.onsubmit=(e)=>{const wasCorrect=guessInput.value.trim().toUpperCase()===currentWord;_origSubmit(e);if(wasCorrect){playCorrect();}else{if(guessInput.value.trim()){playWrong();}}};
+  </script>
+</body>
+</html>
