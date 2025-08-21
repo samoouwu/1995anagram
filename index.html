@@ -3,95 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🎵 Anagram Rush</title>
+  <title>Anagram Rush</title>
   <style>
     :root{--bg:#0b1020;--bg2:#0e1530;--card:#101735;--ink:#eef1ff;--muted:#a7afd6;--accent:#80a8ff;--accent2:#b5c8ff;--good:#34d399;--bad:#f87171;--ring:#3651a7}
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial;color:var(--ink);background:radial-gradient(1200px 700px at 10% 0%,#0e1a48 0%,transparent 60%),radial-gradient(900px 600px at 90% 100%,#0c1a3d 0%,transparent 65%),linear-gradient(180deg,var(--bg),var(--bg2));display:grid;place-items:center;padding:24px}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial;color:var(--ink);background:radial-gradient(1200px 700px at 10% 0%,#0e1a48 0%,transparent 60%),radial-gradient(900px 600px at 90% 100%,#0c1a3d 0%,transparent 65%),linear-gradient(180deg,var(--bg),var(--bg2));display:grid;place-items:center;padding:12px}
     .wrap{width:min(980px,96vw)}
     .card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),var(--card);border:1px solid rgba(132,151,255,.25);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.03);overflow:hidden}
-    header{padding:18px 22px;border-bottom:1px solid rgba(132,151,255,.2);display:flex;align-items:center;justify-content:space-between;gap:12px}
-    header h1{margin:0;font-size:18px;letter-spacing:.3px}
-    .pill{font-size:12px;color:var(--muted);padding:6px 10px;border:1px solid rgba(132,151,255,.25);border-radius:999px;backdrop-filter:blur(6px)}
-    .progress{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;position:relative;margin:0 22px}
+    header{padding:12px 16px;border-bottom:1px solid rgba(132,151,255,.2);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+    header h1{margin:0;font-size:16px;letter-spacing:.3px;white-space:nowrap}
+    .pill{font-size:12px;color:var(--muted);padding:4px 8px;border:1px solid rgba(132,151,255,.25);border-radius:999px;backdrop-filter:blur(6px);white-space:nowrap}
+    .progress{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;position:relative;margin:0 16px}
     .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease}
-    main{padding:22px}
+    main{padding:16px}
     .row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
     .stats{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted)}
-    .kpi{background:rgba(10,16,46,.75);border:1px solid rgba(132,151,255,.25);border-radius:12px;padding:10px 12px}
+    .kpi{background:rgba(10,16,46,.75);border:1px solid rgba(132,151,255,.25);border-radius:12px;padding:8px 10px}
     .kpi strong{color:var(--ink)}
-    .grid{display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;margin:18px 0;overflow-x:auto;scroll-snap-type:x mandatory}
-    .tile{background:rgba(10,16,46,.9);border:1px solid rgba(132,151,255,.25);border-radius:14px;padding:12px 16px;text-align:center;font-weight:800;font-size:24px;letter-spacing:2px;box-shadow:0 8px 24px rgba(0,0,0,.25);min-width:40px;scroll-snap-align:center}
-    .controls{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;justify-content:center}
-    button{background:var(--accent);color:#0b1020;border:none;padding:12px 16px;border-radius:12px;font-weight:700;cursor:pointer;transition:filter .2s ease,transform .06s ease}
+    .grid{display:flex;flex-wrap:nowrap;gap:6px;justify-content:center;margin:12px 0;overflow-x:auto}
+    .tile{background:rgba(10,16,46,.9);border:1px solid rgba(132,151,255,.25);border-radius:10px;padding:10px 12px;text-align:center;font-weight:800;font-size:20px;letter-spacing:1px;box-shadow:0 6px 18px rgba(0,0,0,.25);flex:0 0 auto}
+    .controls{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;justify-content:center}
+    button{background:var(--accent);color:#0b1020;border:none;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer;transition:filter .2s ease,transform .06s ease}
     button:hover{filter:brightness(1.1)}
     button:active{transform:translateY(1px)}
     button.secondary{background:transparent;color:var(--ink);border:1px solid rgba(132,151,255,.35)}
-    input[type=text]{width:100%;max-width:340px;padding:14px 16px;border-radius:12px;border:1px solid rgba(132,151,255,.35);background:rgba(10,16,46,.7);color:var(--ink);font-size:16px;outline:none}
+    input[type=text]{width:100%;max-width:320px;padding:12px;border-radius:12px;border:1px solid rgba(132,151,255,.35);background:rgba(10,16,46,.7);color:var(--ink);font-size:16px;outline:none}
     input[type=text]:focus{box-shadow:0 0 0 4px rgba(128,168,255,.2);border-color:var(--ring)}
     .hint{color:var(--muted);font-size:14px}
     .right{color:var(--good);font-weight:700}
     .wrong{color:var(--bad);font-weight:700}
-    .footer{padding:18px 22px;border-top:1px solid rgba(132,151,255,.2);color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .footer{padding:12px 16px;border-top:1px solid rgba(132,151,255,.2);color:var(--muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
     table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:10px;border-bottom:1px solid rgba(132,151,255,.2);text-align:left;font-size:14px}
+    th,td{padding:8px;border-bottom:1px solid rgba(132,151,255,.2);text-align:left;font-size:13px}
     .sr{position:absolute;left:-9999px}
     .center{display:grid;place-items:center;text-align:center}
-    .nameEntry{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+    .nameEntry{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
     .small{font-size:12px;color:var(--muted)}
     [hidden]{display:none !important}
-
-    /* --- Extra mobile polish --- */
-.grid{overflow-x:hidden}
-
-    @media (max-width: 480px){
-  .grid{flex-wrap:nowrap;justify-content:center;gap:6px;overflow-x:hidden}
-  .tile{min-width:28px;padding:6px 8px;font-size:16px;letter-spacing:0.5px}
-
-      html,body{height:100dvh}
-      body{padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));}
-      .wrap{width:100vw}
-      header h1{font-size:16px}
-      .stats{gap:8px;justify-content:center}
-      .kpi{min-width:120px;text-align:center;padding:8px 10px}
-      .grid{gap:8px;margin:12px 0}
-      .tile{min-width:36px;padding:10px 12px;font-size:20px;letter-spacing:1px}
-      .controls{gap:8px}
-      .controls button{flex:1 1 48%;min-height:48px}
-      input[type=text]{width:100%;max-width:100%;font-size:18px;padding:14px 16px}
-      table{display:block;overflow-x:auto}
-    }
-    @media (max-width: 360px){
-      .kpi{min-width:100%;padding:8px 10px}
-      .controls button{flex:1 1 100%}
-      .tile{min-width:34px;font-size:18px}
-    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card" id="app">
       <header>
-        <h1>🎵 Anagram Rush</h1>
+        <h1>Anagram Rush</h1>
         <div class="pill">Private game · 1995 Broadway</div>
       </header>
       <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
       <main>
         <section id="setup">
-          <div class="row">
-            <div>
-              <h2 style="margin:0 0 6px">Ready?</h2>
-              <p class="hint">Theme: NYC neighborhoods + Real Estate.</p>
-            </div>
-          </div>
-          <div class="controls">
-            <button id="startBtn">▶ Start Game</button>
-          </div>
-          <details style="margin-top:10px">
-            <summary>How scoring works</summary>
-            <p class="small">Base: 1000 points per round − 10 × seconds to solve + 50 × streak. Minimum per round is 50.</p>
-          </details>
+          <h2 style="margin:0 0 6px">Ready?</h2>
+          <p class="hint">Theme: NYC neighborhoods + Real Estate.</p>
+          <div class="controls"><button id="startBtn">▶ Start Game</button></div>
         </section>
 
         <section id="play" hidden>
@@ -104,12 +68,10 @@
           <div class="grid" id="grid" aria-live="polite"></div>
           <form id="guessForm" autocomplete="off" class="center">
             <label class="sr" for="guess">Your guess</label>
-            <input id="guess" type="text"
-              placeholder="Type the unscrambled word (no spaces)…" required
-              autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" />
+            <input id="guess" type="text" placeholder="Type the unscrambled word (no spaces)…" required />
             <div class="controls">
               <button type="submit">Submit</button>
-              <button type="button" class="secondary" id="reshuffleBtn">Reshuffle letters</button>
+              <button type="button" class="secondary" id="reshuffleBtn">Reshuffle</button>
               <button type="button" class="secondary" id="skipBtn">Skip</button>
             </div>
           </form>
@@ -119,19 +81,19 @@
         <section id="finish" hidden class="center">
           <div>
             <h2>🏁 Game Over</h2>
-            <p class="hint">Great run! Save your score to the private leaderboard.</p>
+            <p class="hint">Great run! Save your score to the leaderboard.</p>
             <div class="kpi">Final Score: <strong id="finalScore">0</strong></div>
-            <div style="margin-top:14px" class="nameEntry">
+            <div style="margin-top:12px" class="nameEntry">
               <input id="playerName" type="text" placeholder="Display name" maxlength="24" />
-              <button id="saveScoreBtn">Save to Leaderboard</button>
+              <button id="saveScoreBtn">Save Score</button>
             </div>
-            <p id="saveStatus" class="hint" style="margin-top:6px"></p>
-            <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <p id="saveStatus" class="hint"></p>
+            <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
               <button id="playAgainBtn">Play Again</button>
               <button class="secondary" id="copyLinkBtn">Copy Share Link</button>
             </div>
 
-            <h3 style="margin-top:24px">🏆 Leaderboard (local/private)</h3>
+            <h3 style="margin-top:20px">🏆 Leaderboard</h3>
             <table id="board">
               <thead><tr><th>#</th><th>Name</th><th>Score</th><th>Time(s)</th><th>Date</th></tr></thead>
               <tbody></tbody>
@@ -140,228 +102,78 @@
         </section>
       </main>
       <div class="footer small">
-        <div><span>Made for you — link-only play.</span></div>
-        <div class="toggle"><input type="checkbox" id="sounds" checked /> <label for="sounds">Sound FX</label></div>
+        <span>Made for you — link-only play.</span>
+        <div><input type="checkbox" id="sounds" checked /> <label for="sounds">Sound FX</label></div>
       </div>
     </div>
   </div>
 
-  <audio id="bgMusic" src="sounds/bg-music.mp3" loop preload="auto"></audio>
+  <audio id="bgMusic" loop>
+    <source src="sounds/bg-music.mp3?v=1" type="audio/mpeg" />
+  </audio>
 
   <script>
     const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLScpglp7w18EMoxlh8ynEj82G63jn7fZsvUgwTdMJKqt8CCBsQ/formResponse";
-    const ENTRY_IDS = {
-      name: "entry.1172479628",
-      score: "entry.1803995992",
-      totalTime: "entry.1884286962",
-      seed: "entry.914252467",
-      date: "entry.1001084897"
-    };
+    const ENTRY_IDS = {name:"entry.1172479628",score:"entry.1803995992",totalTime:"entry.1884286962",seed:"entry.914252467",date:"entry.1001084897"};
 
     const WORDS = [
-      "BROOKLYN","BRONX","QUEENS","MANHATTAN","RESOURCE","HARLEM","SOHO","ELLIMAN","TRIBECA","CHELSEA","ASTORIA","DUMBO","LEASE","TENANT","BROKER","ESCROW","MORTGAGE","TITLE","CLOSING","DEED","LIEN","COOP","LOFT","DUPLEX","CONDO","RENTAL","ZONING","LOT","BLOCK","PARCEL","AGENT","OFFER","LISTING","COMPASS","STUDIOPRO","STUDIO","EDEAL","COMMISSION",
-      "APPRAISAL","EQUITY","LIABILITY","ASSET","CORCORAN","CAPRATE","VINCENT","REALTOR","MLS","SUBLET","EASEMENT","VARIANCE","LIQUIDITY","AMENITY","DUE","ESCALATION","REFINANCE","FORECLOSURE","INVESTOR","PORTFOLIO","CASHFLOW","CAPITAL","RENOVATION","PENTHOUSE","MULTIFAMILY","DEVELOPER","XPRESSDOCS","ASSESSMENT","VACANCY","UNDERWRITING","AMORTIZE","INTEREST","PRINCIPAL"
+      "BROOKLYN","BRONX","QUEENS","MANHATTAN","HARLEM","SOHO","TRIBECA","CHELSEA","ASTORIA","DUMBO",
+      "LEASE","TENANT","BROKER","ESCROW","MORTGAGE","TITLE","CLOSING","DEED","LIEN","COOP",
+      "LOFT","DUPLEX","CONDO","RENTAL","ZONING","LOT","BLOCK","PARCEL","AGENT","OFFER",
+      "LISTING","APPRAISAL","EQUITY","LIABILITY","ASSET","CAPRATE","REALTOR","MLS","SUBLET","EASEMENT",
+      "VARIANCE","AMENITY","REFINANCE","FORECLOSURE","INVESTOR","PORTFOLIO","CASHFLOW","CAPITAL","RENOVATION","PENTHOUSE",
+      "MULTIFAMILY","DEVELOPER","ASSESSMENT","VACANCY","UNDERWRITING","INTEREST","PRINCIPAL","LIQUIDITY","AMORTIZE","COMMISSION"
     ];
 
-    let currentWord = "";
-    let round = 0;
-    let score = 0;
-    let streak = 0;
-    let totalTime = 0;
-    let timerInterval;
-    let startTime;
-
-    const startBtn = document.getElementById("startBtn");
-    const setup = document.getElementById("setup");
-    const play = document.getElementById("play");
-    const finish = document.getElementById("finish");
-    const grid = document.getElementById("grid");
-    const guessForm = document.getElementById("guessForm");
-    const guessInput = document.getElementById("guess");
-    const feedback = document.getElementById("feedback");
-    const roundNow = document.getElementById("roundNow");
-    const roundTotal = document.getElementById("roundTotal");
-    const scoreEl = document.getElementById("score");
-    const streakEl = document.getElementById("streak");
-    const timeEl = document.getElementById("time");
-    const progressBar = document.getElementById("progressBar");
-    const finalScore = document.getElementById("finalScore");
-    const playerName = document.getElementById("playerName");
-    const saveScoreBtn = document.getElementById("saveScoreBtn");
-    const saveStatus = document.getElementById("saveStatus");
-    const board = document.getElementById("board").querySelector("tbody");
-    const sndToggle = document.getElementById("sounds");
-    const bgMusic = document.getElementById("bgMusic");
-
-    roundTotal.textContent = 30;
-
-    function shuffle(word){
-      return word.split('').map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]).join('');
+    let usedWords=[];
+    function getRandomWord(){
+      if(usedWords.length===WORDS.length)usedWords=[];
+      let word;
+      do{word=WORDS[Math.floor(Math.random()*WORDS.length)];}while(usedWords.includes(word));
+      usedWords.push(word);
+      return word;
     }
 
-    function nextRound(){
-      if(round>=30){ endGame(); return; }
-      round++;
-      roundNow.textContent=round;
-      currentWord = WORDS[Math.floor(Math.random()*WORDS.length)];
-      renderWord(currentWord);
-      startTimer();
-      feedback.textContent="";
-      guessInput.value="";
-      setTimeout(()=>{
-        guessInput.focus({preventScroll:true});
-        guessInput.scrollIntoView({block:"center",behavior:"smooth"});
-      },50);
-    }
+    let currentWord="",round=0,score=0,streak=0,totalTime=0,startTime,timerInterval;
+    const startBtn=document.getElementById("startBtn");
+    const setup=document.getElementById("setup"),play=document.getElementById("play"),finish=document.getElementById("finish");
+    const grid=document.getElementById("grid"),guessForm=document.getElementById("guessForm"),guessInput=document.getElementById("guess");
+    const feedback=document.getElementById("feedback"),roundNow=document.getElementById("roundNow"),roundTotal=document.getElementById("roundTotal");
+    const scoreEl=document.getElementById("score"),streakEl=document.getElementById("streak"),timeEl=document.getElementById("time");
+    const progressBar=document.getElementById("progressBar"),finalScore=document.getElementById("finalScore");
+    const playerName=document.getElementById("playerName"),saveScoreBtn=document.getElementById("saveScoreBtn"),saveStatus=document.getElementById("saveStatus");
+    const board=document.getElementById("board").querySelector("tbody");roundTotal.textContent=30;
 
-    function renderWord(word){
-      grid.innerHTML="";
-      shuffle(word).split('').forEach(l=>{
-        const div=document.createElement("div");
-        div.className="tile";
-        div.textContent=l;
-        grid.appendChild(div);
-      });
-    }
+    function shuffle(word){return word.split('').sort(()=>Math.random()-.5).join('');}
+    function renderWord(word){grid.innerHTML="";shuffle(word).split('').forEach(l=>{const div=document.createElement("div");div.className="tile";div.textContent=l;grid.appendChild(div);});}
+    function startTimer(){clearInterval(timerInterval);startTime=Date.now();timerInterval=setInterval(()=>{timeEl.textContent=((Date.now()-startTime)/1000).toFixed(1);},100);}
+    function stopTimer(){clearInterval(timerInterval);const secs=(Date.now()-startTime)/1000;totalTime+=secs;return secs;}
+    function nextRound(){if(round>=30){endGame();return;}round++;roundNow.textContent=round;currentWord=getRandomWord();renderWord(currentWord);startTimer();feedback.textContent="";guessInput.value="";}
+    function endGame(){play.hidden=true;finish.hidden=false;finalScore.textContent=score;playGameOver();resumeMusic();}
 
-    function startTimer(){
-      clearInterval(timerInterval);
-      startTime=Date.now();
-      timerInterval=setInterval(()=>{
-        timeEl.textContent=((Date.now()-startTime)/1000).toFixed(1);
-      },100);
-    }
+    startBtn.onclick=()=>{setup.hidden=true;play.hidden=false;round=0;score=0;streak=0;totalTime=0;usedWords=[];nextRound();pauseMusic();};
 
-    function stopTimer(){
-      clearInterval(timerInterval);
-      const secs=(Date.now()-startTime)/1000;
-      totalTime+=secs;
-      return secs;
-    }
+    guessForm.onsubmit=e=>{e.preventDefault();const guess=guessInput.value.trim().toUpperCase();if(!guess)return;if(guess===currentWord){const secs=stopTimer();const pts=Math.max(50,1000-Math.floor(secs*10)+50*streak);score+=pts;streak++;scoreEl.textContent=score;streakEl.textContent=streak;progressBar.style.width=((round/30)*100)+"%";playCorrect();nextRound();}else{feedback.textContent="Incorrect";playWrong();}};
 
-    function endGame(){
-      play.hidden=true;
-      finish.hidden=false;
-      finalScore.textContent=score;
-    }
+    document.getElementById("reshuffleBtn").onclick=()=>{renderWord(currentWord);playClick();};
+    document.getElementById("skipBtn").onclick=()=>{streak=0;streakEl.textContent=streak;stopTimer();progressBar.style.width=((round/30)*100)+"%";nextRound();playClick();};
 
-    function startGame(){
-      setup.hidden=true;
-      play.hidden=false;
-      round=0;score=0;streak=0;totalTime=0;
-      progressBar.style.width='0%';
-      nextRound();
-      setTimeout(()=>{
-        guessInput.focus({preventScroll:true});
-        guessInput.scrollIntoView({block:"center",behavior:"smooth"});
-      },50);
-    }
+    saveScoreBtn.onclick=()=>{const name=playerName.value.trim()||"Anonymous";const row=document.createElement("tr");row.innerHTML=`<td></td><td>${name}</td><td>${score}</td><td>${totalTime.toFixed(1)}</td><td>${new Date().toLocaleDateString()}</td>`;board.appendChild(row);[...board.querySelectorAll("tr")].forEach((r,i)=>r.firstChild.textContent=i+1);saveStatus.textContent="Saved locally.";const formData=new FormData();formData.append(ENTRY_IDS.name,name);formData.append(ENTRY_IDS.score,score);formData.append(ENTRY_IDS.totalTime,totalTime.toFixed(1));formData.append(ENTRY_IDS.seed,Math.random().toString(36).substring(2,8));formData.append(ENTRY_IDS.date,new Date().toISOString());fetch(FORM_ACTION,{method:"POST",mode:"no-cors",body:formData});playClick();};
 
-    startBtn.addEventListener("click",()=>{
-      try{ bgMusic.pause(); bgMusic.currentTime=0; }catch(e){}
-      startGame();
-    });
+    document.getElementById("playAgainBtn").onclick=()=>{finish.hidden=true;setup.hidden=false;playClick();};
+    document.getElementById("copyLinkBtn").onclick=()=>{navigator.clipboard.writeText(window.location.href);saveStatus.textContent="Link copied!";playClick();};
 
-    guessForm.addEventListener("submit",(e)=>{
-      e.preventDefault();
-      const guess=guessInput.value.trim().toUpperCase();
-      if(!guess) return;
-      if(guess===currentWord){
-        playCorrect();
-        const secs=stopTimer();
-        const pts=Math.max(50,1000-Math.floor(secs*10)+50*streak);
-        score+=pts;streak++;
-        scoreEl.textContent=score;streakEl.textContent=streak;
-        progressBar.style.width=((round/30)*100)+"%";
-        nextRound();
-      } else {
-        feedback.textContent="Incorrect · Try again";
-        playWrong();
-      }
-    });
+    // Sound handling
+    const sndToggle=document.getElementById("sounds");let audioCtx=null;
+    function ensureAudio(){if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}}
+    function playTone(freq,type,dur){if(!sndToggle.checked)return;ensureAudio();const o=audioCtx.createOscillator();const g=audioCtx.createGain();o.type=type;o.frequency.value=freq;o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);}
+    function playClick(){playTone(220,"square",0.1);}function playCorrect(){playTone(880,"sine",0.3);}function playWrong(){playTone(150,"sawtooth",0.25);}function playGameOver(){playTone(440,"triangle",0.6);}
 
-    document.getElementById("reshuffleBtn").addEventListener("click",()=>{ renderWord(currentWord); playClick(); });
-    window.addEventListener('resize', ()=>{ fitLetters(); });
-    document.getElementById("skipBtn").addEventListener("click",()=>{
-      streak=0;streakEl.textContent=streak;
-      stopTimer();
-      progressBar.style.width=((round/30)*100)+"%";
-      nextRound();
-      playClick();
-    });
-
-    saveScoreBtn.addEventListener("click",()=>{
-      const name=playerName.value.trim()||"Anonymous";
-      const row=document.createElement("tr");
-      row.innerHTML=`<td></td><td>${name}</td><td>${score}</td><td>${totalTime.toFixed(1)}</td><td>${new Date().toLocaleDateString()}</td>`;
-      board.appendChild(row);
-      [...board.querySelectorAll("tr")].forEach((r,i)=>r.firstChild.textContent=i+1);
-      saveStatus.textContent="Saved locally.";
-
-      const formData=new FormData();
-      formData.append(ENTRY_IDS.name,name);
-      formData.append(ENTRY_IDS.score,score);
-      formData.append(ENTRY_IDS.totalTime,totalTime.toFixed(1));
-      formData.append(ENTRY_IDS.seed,Math.random().toString(36).substring(2,8));
-      formData.append(ENTRY_IDS.date,new Date().toISOString());
-      fetch(FORM_ACTION,{method:"POST",mode:"no-cors",body:formData});
-
-      playClick();
-    });
-
-    document.getElementById("playAgainBtn").addEventListener("click",()=>{
-      finish.hidden=true;
-      setup.hidden=false;
-      if(sndToggle.checked){
-        try{ bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){}
-      }
-      playClick();
-    });
-
-    document.getElementById("copyLinkBtn").addEventListener("click",()=>{
-      navigator.clipboard.writeText(window.location.href);
-      saveStatus.textContent="Link copied!";
-      playClick();
-    });
-
-    const sCorrect  = new Audio("sounds/correct.mp3");
-    const sWrong    = new Audio("sounds/wrong.mp3");
-    const sClick    = new Audio("sounds/click.mp3");
-    const sGameOver = new Audio("sounds/gameover.mp3");
-    [sCorrect,sWrong,sClick,sGameOver].forEach(a=>{a.preload="auto";a.volume=0.45});
-    function playFile(a){ if(!sndToggle.checked) return; try{ a.currentTime=0; a.play(); }catch(e){} }
-    function playClick(){ playFile(sClick); }
-    function playCorrect(){ playFile(sCorrect); }
-    function playWrong(){ playFile(sWrong); }
-    function playGameOver(){ playFile(sGameOver); }
-    function primeFX(){ [sCorrect,sWrong,sClick,sGameOver].forEach(a=>{ a.play().then(()=>{a.pause();a.currentTime=0}).catch(()=>{}) }); }
-    window.addEventListener("click",primeFX,{once:true});
-
-    const _end=endGame;
-    endGame=()=>{
-      _end();
-      playGameOver();
-      if(sndToggle.checked){
-        try{ bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){}
-      }
-    };
-
-    sndToggle.addEventListener("change",(e)=>{
-      if(e.target.checked){
-        if(play.hidden){
-          try{ bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){}
-        }
-      } else {
-        try{ bgMusic.pause(); }catch(e){}
-      }
-    });
-
-    document.addEventListener("pointerdown", function once(){
-      if(play.hidden && sndToggle.checked){
-        try{ bgMusic.currentTime=0; bgMusic.play().catch(()=>{});}catch(e){}
-      }
-      document.removeEventListener("pointerdown", once);
-    }, {once:true, passive:true});
+    // Background music
+    const bgMusic=document.getElementById("bgMusic");
+    function resumeMusic(){if(sndToggle.checked){bgMusic.play().catch(()=>{});}}
+    function pauseMusic(){bgMusic.pause();bgMusic.currentTime=0;}
+    window.addEventListener("load",()=>resumeMusic());
   </script>
 </body>
 </html>
